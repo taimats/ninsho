@@ -1,0 +1,13 @@
+services:
+  web:
+    container_name: web
+    build:
+      context: ./
+      dockerfile: Dockerfile-react
+    volumes:
+      - ./web:/web
+    ports:
+      - "5173:5173" #viteがwebサーバーを立ち上げるポート番号
+      - "24678:24678" #viteの参照先のポート番号
+    tty: true
+    command: sh -c "npm install && npm run dev"
