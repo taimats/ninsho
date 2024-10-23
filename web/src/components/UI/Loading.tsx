@@ -21,7 +21,7 @@ function Loading({ children }: LoadingProps) {
 
 const loadingBack = cva({
     base: {
-        backgroundColor: "rgba(128, 128, 128, 0.4)", // rgbaで透明度を指定
+        backgroundColor: "rgba(128, 128, 128, 0.4)",
         width: "100%",
         height: "100vh",
         position: "absolute",
