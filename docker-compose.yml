@@ -1,6 +1,5 @@
 services:
   web:
-    container_name: web
     build:
       context: ./
       dockerfile: Dockerfile-react
@@ -20,6 +19,49 @@ services:
       - 4000:4000
     volumes:
       - ./backend:/app
+  
+  postgres:
+    build:
+      context: ./
+      dockerfile: Dockerfile-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=hands_on
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/seed:/seed
+    ports:
+      - "5432:5432"
+  
+  migrate:
+    image: migrate/migrate:v4.15.2
+    profiles: ["tools"]
+    volumes:
+      - ./db/migration:/migration
+    entrypoint:
+      [
+        "migrate",
+        "-path",
+        "/migration",
+        "-database",
+        "postgres://postgres:secret@postgres:5432/hands_on?sslmode=disable",
+      ]
+    command: ["up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+  
+volumes:
+  db_data:
+
+
 
 
 
