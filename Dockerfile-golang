@@ -1,0 +1,17 @@
+FROM golang:1.18-alpine
+WORKDIR /app
+
+COPY backend/go.mod .
+COPY backend/go.sum .
+COPY backend/*air.toml .
+
+RUN go mod download
+
+ENV CGO_ENABLED = 0
+
+COPY ./backend .
+
+RUN go install github.com/cosmtrek/air@v1.29.0
+
+CMD ["air", "-c", ".air.toml"]
+
