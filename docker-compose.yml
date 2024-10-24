@@ -11,3 +11,15 @@ services:
       - "24678:24678" #viteの参照先のポート番号
     tty: true
     command: sh -c "npm install && npm run dev"
+  
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile-golang
+    ports:
+      - 4000:4000
+    volumes:
+      - ./backend:/app
+
+
+
