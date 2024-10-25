@@ -2,7 +2,7 @@ import { useAtom } from "jotai"
 import { testAtom } from "@jotai/testAtom"
 import { useJotais } from "@jotai/index"
 import { useEffect } from "react"
-import { mockWait } from "@usecase/util"
+import { axiosGet } from "@usecase/util"
 
 function Test() {
     const [test] = useAtom(testAtom)
@@ -10,7 +10,8 @@ function Test() {
 
     const load = async () => {
         setLoading(true);
-        await mockWait();
+        const data = axiosGet("example")
+        console.log("【ログ: data ▶】", data)
         setLoading(false);
     }
 
@@ -20,7 +21,7 @@ function Test() {
 
     return (
         <>
-            <p>{test}</p>
+        <p>{test}</p>
         </>
     )
 }

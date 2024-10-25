@@ -41,7 +41,7 @@ func main() {
 		w.Write(js)
 	})
 
-	err := http.ListenAndServe(":4000", nil)
+	err := http.ListenAndServe(":4000", corsMiddleware(http.DefaultServeMux))
 	if err != nil {
 		log.Println(err)
 	}
