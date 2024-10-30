@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine
+FROM golang:1.23-alpine
 WORKDIR /app
 
 COPY backend/go.mod .
@@ -11,7 +11,7 @@ ENV CGO_ENABLED = 0
 
 COPY ./backend .
 
-RUN go install github.com/cosmtrek/air@v1.29.0
+RUN go install github.com/cosmtrek/air@latest
 
-CMD ["air", "-c", ".air.toml"]
+CMD ["air"]
 

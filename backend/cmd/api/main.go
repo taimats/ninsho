@@ -1,15 +1,23 @@
 package main
 
 import (
-	"encoding/json"
+	"backend/cmd/api/handler"
+	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
+
+	_ "github.com/lib/pq"
 )
 
 type config struct {
 	env string
+	db  struct {
+		dsn string //dsnはデータソースネーム
+	}
 }
 
 type AppStatus struct {
@@ -21,29 +29,39 @@ func main() {
 	var cfg config
 	//コマンドラインから環境変数を読み込む
 	flag.StringVar(&cfg.env, "env", "development", "Application environment (development|production)")
+	flag.StringVar(&cfg.db.dsn, "dsn", "postgres://postgres:secret@postgres/hands_on?sslmode=disable", "Postgres connection string")
 	flag.Parse()
 
 	fmt.Println("Running")
 
-	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
-		currentStatus := AppStatus{
-			Status:      "Available",
-			Environment: cfg.env,
-		}
+	db, err := OpenDB(cfg)
+	if err != nil {
+		log.Fatalf("Unable to open database: %v", err)
+	}
+	defer db.Close()
 
-		js, err := json.MarshalIndent(currentStatus, "", "\t")
-		if err != nil {
-			log.Println(err)
-		}
+	routes(&handler.Handler{DB: db})
 
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(js)
-	})
-
-	err := http.ListenAndServe(":4000", corsMiddleware(http.DefaultServeMux))
+	err = http.ListenAndServe(":4000", corsMiddleware(http.DefaultServeMux))
 	if err != nil {
 		log.Println(err)
 	}
 
+}
+
+func OpenDB(cfg config) (*sql.DB, error) {
+	db, err := sql.Open("postgres", cfg.db.dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = db.PingContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }

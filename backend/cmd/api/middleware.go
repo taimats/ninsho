@@ -5,26 +5,18 @@ import "net/http"
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		allowedOrigins := []string{"http://localhost:5173"}
+		allowedOrign := []string{"http://localhost:5173", "http://localhost:4000"}
 
-		allowed := false
-		for _, allowedOrigin := range allowedOrigins {
-			if origin == allowedOrigin {
-				allowed = true
-				break
-			}
-		}
-
-		if !allowed {
-			http.Error(w, "Not allowed", http.StatusForbidden)
+		if origin == allowedOrign[0] || origin == allowedOrign[1] {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, OPTIONS, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		} else {
+			http.Error(w, "Not Allowed", http.StatusForbidden)
 			return
 		}
 
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-		w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-		if r.Method == "Options" {
+		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
