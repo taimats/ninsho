@@ -2,8 +2,7 @@ package handler
 
 import (
 	"backend/pkg/db"
-	"encoding/json"
-	"log"
+	"backend/pkg/util"
 	"net/http"
 	"strings"
 )
@@ -19,14 +18,17 @@ func (h *Handler) ExampleAll(w http.ResponseWriter, r *http.Request) {
 		Name string `json:"name"`
 	}
 
-	/*
-		sql, err := db.QueryParse("example/all", nil)
-		if err != nil {
-			log.Fatalf("Failed parse: %v", err)
-		}
-	*/
+	sql, err := db.QueryParse("example/all", nil)
+	if err != nil {
+		util.WriteErrorJson(w, err)
+		return
+	}
 
-	rows, _ := h.DB.Query("select id, name from example")
+	rows, err := h.DB.Query(sql)
+	if err != nil {
+		util.WriteErrorJson(w, err)
+		return
+	}
 	results := []Result{}
 	for rows.Next() {
 		result := Result{}
@@ -34,7 +36,7 @@ func (h *Handler) ExampleAll(w http.ResponseWriter, r *http.Request) {
 		results = append(results, result)
 	}
 
-	json.NewEncoder(w).Encode(results)
+	util.WriteJson(w, http.StatusOK, results, nil)
 }
 
 func (h *Handler) ExampleDelete(w http.ResponseWriter, r *http.Request) {
@@ -43,12 +45,14 @@ func (h *Handler) ExampleDelete(w http.ResponseWriter, r *http.Request) {
 
 	sql, err := db.QueryParse("example/delete", arg)
 	if err != nil {
-		log.Println(err)
+		util.WriteErrorJson(w, err)
+		return
 	}
 
 	_, err = h.DB.Exec(sql)
 	if err != nil {
-		log.Println(err)
+		util.WriteErrorJson(w, err)
+		return
 	}
 
 }

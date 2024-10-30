@@ -10,7 +10,7 @@ function Test() {
 
     const load = async () => {
         setLoading(true);
-        const data = axiosGet("example")
+        const data = axiosGet("example/all")
         console.log("【ログ: data ▶】", data)
         setLoading(false);
     }
