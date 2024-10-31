@@ -15,5 +15,22 @@ async function axiosGet<T>(path: string): Promise<{data: T, err: any}> {
   await mockWait()
   return resp
 }
+
+async function axiosDelete<T>(path: string): Promise<{data: T, err: any}> {
+  const r: AxiosResponse = await axios.delete(path)
+  const resp: { data: T, err: any} = r.data
+
+  await mockWait()
+  return resp
+}
+
+async function axiosPost<T>(path:string, payload: any): Promise<{data: T, err: any}> {
+  const params = JSON.stringify(payload)
+  const r = await axios.post(path, params)
+  const resp: {data: T, err: any} = r.data
+
+  await mockWait()
+  return resp
+}
   
-  export { axiosGet, mockWait };
+export { axiosGet, axiosDelete, axiosPost, mockWait };

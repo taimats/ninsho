@@ -1,0 +1,2 @@
+ALTER TABLE example ALTER COLUMN id DROP DEFAULT;
+DROP SEQUENCE public.example_id_seq;
